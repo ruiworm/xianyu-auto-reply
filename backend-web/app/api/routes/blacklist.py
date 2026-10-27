@@ -13,8 +13,6 @@ import time
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import StreamingResponse
-from openpyxl import Workbook, load_workbook
-from openpyxl.utils import get_column_letter
 from pydantic import BaseModel
 
 from app.api import deps
@@ -150,6 +148,9 @@ async def export_personal_blacklist(
     service: BlacklistService = Depends(get_blacklist_service),
 ):
     """导出个人黑名单为Excel"""
+    from openpyxl import Workbook
+    from openpyxl.utils import get_column_letter
+
     owner_id, _ = resolve_owner_scope(current_user)
 
     # 查询所有数据（不分页）
@@ -205,6 +206,8 @@ async def import_personal_blacklist(
     service: BlacklistService = Depends(get_blacklist_service),
 ):
     """从Excel导入个人黑名单"""
+    from openpyxl import load_workbook
+
     if not file.filename or not file.filename.endswith((".xlsx", ".xls")):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="请上传Excel文件(.xlsx或.xls)")
 

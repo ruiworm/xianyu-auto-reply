@@ -10,11 +10,9 @@ from __future__ import annotations
 
 import io
 import json
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from loguru import logger
-from openpyxl import Workbook
-from openpyxl.utils import get_column_letter
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,6 +24,9 @@ from common.models.default_reply import DefaultReply
 from common.models.xy_catalog_item import XYCatalogItem
 from common.models.confirm_receipt_message import ConfirmReceiptMessage
 from common.models.auto_rate_config import AutoRateConfig
+
+if TYPE_CHECKING:
+    from openpyxl import Workbook
 
 
 def _to_str(value) -> str:
@@ -46,6 +47,8 @@ def _to_str(value) -> str:
 
 def _write_sheet(wb: Workbook, sheet_name: str, headers: list[str], rows: list[list]) -> None:
     """向工作簿写入一个Sheet，所有单元格设为文本格式。"""
+    from openpyxl.utils import get_column_letter
+
     ws = wb.create_sheet(title=sheet_name)
     # 写表头
     for col_idx, header in enumerate(headers, 1):
@@ -115,6 +118,8 @@ class AccountExportService:
         pk_to_account_id = {acc.id: acc.account_id for acc in accounts}
 
         # 4. 生成Excel
+        from openpyxl import Workbook
+
         wb = Workbook()
         # 删除默认Sheet
         wb.remove(wb.active)

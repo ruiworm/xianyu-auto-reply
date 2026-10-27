@@ -1,0 +1,49 @@
+# 在同一个部署目录叠加到主系统 compose；保留已有项目名、.env 与数据卷。
+# docker compose -f docker-compose.yml -f docker-compose.low-memory.yml up -d --build
+# 4GB / 单账号起点；保留所有业务服务，通过降低并发及缓存容量节省内存。
+x-python-memory: &python-memory
+  DB_POOL_SIZE: "${LOW_MEMORY_DB_POOL_SIZE:-5}"
+  DB_MAX_OVERFLOW: "${LOW_MEMORY_DB_MAX_OVERFLOW:-5}"
+  REDIS_POOL_SIZE: "${LOW_MEMORY_REDIS_POOL_SIZE:-20}"
+  SQL_ECHO: "false"
+  MALLOC_ARENA_MAX: "2"
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+
+services:
+  mysql:
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max-connections=${LOW_MEMORY_MYSQL_MAX_CONNECTIONS:-100}
+      - --max-connect-errors=100000
+      - --max-allowed-packet=256M
+      - --default-time-zone=+08:00
+      - --innodb-buffer-pool-size=${LOW_MEMORY_MYSQL_BUFFER_POOL_SIZE:-64M}
+      - --performance-schema=OFF
+      - --table-open-cache=256
+      - --table-definition-cache=400
+      - --thread-cache-size=8
+      - --temptable-max-ram=32M
+      - --temptable-max-mmap=0
+  redis:
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:-xianyu@2026}
+      - --maxmemory
+      - ${LOW_MEMORY_REDIS_MAXMEMORY:-64mb}
+      - --maxmemory-policy
+      - allkeys-lru
+      - --appendonly
+      - "yes"
+  backend-web:
+    environment:
+      <<: *python-memory
+  websocket:
+    environment:
+      <<: *python-memory
+      MAX_CAPTCHA_CONCURRENT: "1"
+  scheduler:
+    environment:
+      <<: *python-memory

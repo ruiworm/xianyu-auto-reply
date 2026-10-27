@@ -14,8 +14,6 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 from fastapi.responses import StreamingResponse
-from openpyxl import Workbook, load_workbook
-from openpyxl.utils import get_column_letter
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -123,6 +121,9 @@ async def export_personal_addresses(
     session: AsyncSession = Depends(get_db_session),
 ):
     """导出个人地址库为Excel"""
+    from openpyxl import Workbook
+    from openpyxl.utils import get_column_letter
+
     svc = UserPublishAddressService(session)
     records = await svc.list_all_for_owner(current_user.id)
 
@@ -166,6 +167,8 @@ async def import_personal_addresses(
     session: AsyncSession = Depends(get_db_session),
 ) -> Dict[str, Any]:
     """从Excel导入个人地址库（按地址文本去重，更新或插入）"""
+    from openpyxl import load_workbook
+
     if not file.filename or not file.filename.endswith((".xlsx", ".xls")):
         return ApiResponse(success=False, message="请上传Excel文件(.xlsx或.xls)")
 

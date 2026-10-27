@@ -21,7 +21,6 @@ from typing import Any
 from urllib.parse import urlparse
 
 import aiohttp
-import cv2
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from loguru import logger
@@ -122,6 +121,9 @@ def _video_dimensions(content: bytes) -> tuple[int, int]:
 
 def _extract_video_cover_sync(content: bytes, suffix: str) -> tuple[bytes, int, int]:
     """从本地视频首帧生成 JPEG 封面并读取其宽高。"""
+    # OpenCV 连带加载 NumPy，仅在实际提取视频封面时占用内存。
+    import cv2
+
     fd, temporary_name = tempfile.mkstemp(suffix=suffix or ".mp4")
     temporary_path = Path(temporary_name)
     try:

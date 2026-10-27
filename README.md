@@ -97,6 +97,8 @@
 - Redis 6+
 - Chromium / Chrome（Playwright 相关功能）
 
+4GB 内存、单账号等小规模部署可使用[轻量模式](docs/low-memory.md)：保留主系统功能，降低 MySQL、连接池和浏览器并发的内存开销。
+
 ### 生产环境
 
 - Docker 20.10+

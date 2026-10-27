@@ -3,7 +3,6 @@ from __future__ import annotations
 import io
 import time
 
-from openpyxl import Workbook, load_workbook
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import StreamingResponse
 
@@ -128,6 +127,8 @@ async def export_keywords(
     keyword_service: KeywordService = Depends(deps.get_keyword_service),
 ):
     """导出指定账号的关键词为Excel文件"""
+    from openpyxl import Workbook
+
     # 管理员可以操作所有账号，普通用户只能操作自己的账号
     owner_id, _ = resolve_owner_scope(current_user)
     account = await account_service.get_account_for_user(owner_id, account_id)
@@ -177,6 +178,8 @@ async def import_keywords(
     keyword_service: KeywordService = Depends(deps.get_keyword_service),
 ):
     """导入Excel文件中的关键词到指定账号"""
+    from openpyxl import load_workbook
+
     # 管理员可以操作所有账号，普通用户只能操作自己的账号
     owner_id, _ = resolve_owner_scope(current_user)
     account = await account_service.get_account_for_user(owner_id, account_id)

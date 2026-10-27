@@ -14,7 +14,6 @@ from io import BytesIO
 from typing import Any
 
 from loguru import logger
-from openpyxl import load_workbook
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -116,6 +115,8 @@ class AccountImportService:
         Returns:
             导入结果统计
         """
+        from openpyxl import load_workbook
+
         try:
             wb = load_workbook(BytesIO(file_content), read_only=True, data_only=True)
         except Exception as e:
